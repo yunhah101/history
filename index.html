@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>한국사 연도 외우기^^</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+      background: #fff;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+    .app { width: 100%; max-width: 420px; display: flex; flex-direction: column; }
+    .btn {
+      width: 220px; height: 70px; font-size: 24px;
+      border: none; border-radius: 2px;
+      background: #0067c0; color: #fff; cursor: pointer;
+    }
+    #backButton {
+      background: #d32f2f;
+    }
+    .btn:active { transform: scale(0.98); }
+    #startScreen { flex: 1; display: flex; flex-direction: column; }
+    .title-area { text-align: center; margin-top: 120px; }
+    .title-area h1 { font-size: 32px; margin-bottom: 8px; }
+    .title-area .byline { font-size: 14px; color: #555; }
+    .title-area .subtitle { font-size: 13px; color: #777; margin-top: 4px; }
+    .start-button-area {
+      margin-top: auto; margin-bottom: 120px;
+      display: flex; justify-content: center;
+    }
+    #quizScreen { flex: 1; display: none; flex-direction: column; padding: 24px; }
+    #counter { text-align: right; font-size: 18px; }
+    #eventText { margin-top: 140px; text-align: center; font-size: 32px; }
+    #tagText { margin-top: 8px; text-align: center; font-size: 18px; color: #444; }
+    #answerText { margin-top: 40px; text-align: center; font-size: 28px; visibility: hidden; }
+    .quiz-button-area { margin-top: auto; margin-bottom: 120px; display: flex; justify-content: center; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div id="startScreen">
+      <div class="title-area">
+        <h1>한국사 연도 외우기^^</h1>
+        <div class="byline">By 황윤하</div>
+        <div class="subtitle">p.91까지도</div>
+      </div>
+      <div class="start-button-area">
+        <button class="btn" id="startButton">시작하기</button>
+      </div>
+    </div>
+
+    <div id="quizScreen">
+      <div id="counter"></div>
+      <div id="eventText"></div>
+      <div id="tagText"></div>
+      <div id="answerText"></div>
+      <div class="quiz-button-area">
+      <button class="btn" id="backButton">뒤로가기</button>
+      <button class="btn" id="checkButton">정답 체크</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const cards = [ 
+ { event: "만주사변", date: "1931" },
+  { event: "만주국 수립", date: "1932" },
+  { event: "영릉가 전투", date: "1932" },
+  { event: "쌍성보 전투", date: "1932" },
+  { event: "대전자령 전투", date: "1933" },
+  { event: "흥경성 전투", date: "1933" },
+  { event: "조선 민족 혁명당 창당 (난징)", date: "1935.7.5" },
+
+  { event: "보천보 전투", date: "1937" },
+  { event: "중일전쟁", date: "1937" },
+  { event: "황국 신민 서사 제정", date: "1937" },
+
+  { event: "국가 총동원법 제정", date: "1938" },
+  { event: "지원병제", date: "1938" },
+  { event: "조선 의용대 창설", date: "1938" },
+
+  { event: "국민 징용령", date: "1939" },
+  { event: "제2차 세계대전 발발", date: "1939" },
+
+  { event: "일본식 성명 강요", date: "1940" },
+  { event: "한국 독립당 결성", date: "1940" },
+  { event: "대임정 충칭 정착", date: "1940" },
+  { event: "한국광복군 창설", date: "1940" },
+  { event: "대임정 이동 경로 (상하이-1932-1935-1937-1938-1938-1939-1939-1940 충칭)", date: "1920~1940" },
+
+  { event: "국민학교령 제정", date: "1941" },
+  { event: "아시아 태평양 전쟁 발발", date: "1941" },
+  { event: "대한민국 건국 강령", date: "1941" },
+  { event: "대일 선전 성명서", date: "1941" },
+  { event: "조선 의용대 화북지대 결성", date: "1941.7" },
+  { event: "호가장 전투", date: "1941.12" },
+
+  { event: "조선 어학회 사건", date: "1942" },
+  { event: "조선 의용군 개편", date: "1942.7" },
+  { event: "김원봉 등 조민혁 계열 인사 대임정 합류", date: "1942" },
+  { event: "화북 조선 독립 동맹 결성", date: "1942" },
+
+  { event: "학도 지원병제", date: "1943" },
+  { event: "카이로 회담", date: "1943.11" },
+
+  { event: "징병제", date: "1944" },
+  { event: "여자 정신 근로령", date: "1944" },
+
+  { event: "얄타 회담", date: "1945.2" },
+  { event: "포츠담 회담", date: "1945.7" },
+  { event: "소련 일본 선전포고", date: "1945.8" },
+  { event: "조선 건국 준비 위원회 조직", date: "1945.8" },
+  { event: "8.15 광복", date: "1945.8.15" },
+  { event: "조선 인민 공화국 수립 선포", date: "1945.9" },
+  { event: "미군정 시작 (군정청 설치)", date: "1945.9" },
+  { event: "이승만 귀국", date: "1945.10" },
+  { event: "김구 귀국", date: "1945.11" },
+
+  { event: "모스크바 3국 외상 회의", date: "1945.12" },
+  { event: "제1차 미소 공동 위원회 개회 (덕수궁)", date: "1946.3" },
+  { event: "제1차 미소 공동 위원회 무기 휴회", date: "1946.5" },
+
+  { event: "이승만 정읍 발언", date: "1946.6" },
+  { event: "좌우 합작 위원회 조직", date: "1946.7" },
+  { event: "좌우 합작 7원칙 발표", date: "1946.10" },
+
+  { event: "제2차 미소 공동 위원회 개최", date: "1947.5" },
+  { event: "좌우 합작 운동 중단", date: "1947.7" },
+
+  { event: "삼일절 발포 사건", date: "1947.3.1" },
+  { event: "관·민 총파업", date: "1947.3.10" },
+
+  { event: "유엔 한국 임시 위원단 내한", date: "1948.1" },
+  { event: "유엔 소총회 — 선거 감시 가능한 지역 우선 선거 결의", date: "1948.2" },
+  { event: "5.10 총선거", date: "1948.5.10" },
+  { event: "제헌 헌법 선포", date: "1948.7.17" },
+  { event: "대한민국 정부 수립", date: "1948.8.15" },
+  { event: "북한 정권 수립", date: "1948.9.9" },
+  { event: "반민족 행위 처벌법 제정", date: "1948.9" },
+  { event: "반민족 행위 특별 조사 위원회 설치", date: "1948.10" },
+  { event: "국가 보안법 공포", date: "1948.12" },
+
+  { event: "농지 개혁법 공포", date: "1949.6" },
+  { event: "유상 매입 · 유상 분배 농지 개혁 실시", date: "1950.3" },
+  { event: "반민족 행위 처벌법 폐지", date: "1951" },
+  { event: "조천 모슬포 지서 고문치사 사건, 금릉리 경찰 서북 청년회 민간인 즉결 처형", date: "1948.3중", tag: "4.3" },
+  { event: "무장봉기 발발", date: "1948.4.3", tag: "4.3" },
+  { event: "김익령 김달삼 평화협상", date: "1948.4.28", tag: "4.3" },
+  { event: "오라리 방화사건 (평화협정 파기)", date: "1948.5.1", tag: "4.3" },
+  { event: "제주 선거구 2곳 무효 (5.10 총선)", date: "1948.5.10", tag: "4.3" },
+  { event: "대한민국 정부 수립", date: "1948.8.15", tag: "4.3" },
+  { event: "통행금지 구역 설정 명령", date: "1948.10.17", tag: "4.3" },
+  { event: "여수 순천 10.19 사건", date: "1948.10.19", tag: "4.3" },
+  { event: "계엄 발표, 초토화 작전 개시", date: "1948.11.17", tag: "4.3" },
+  { event: "제주 2곳 선거구 포함 재선거 실시", date: "1949.5.10", tag: "4.3" },
+  { event: "정전 협정 체결", date: "1953.7.27", tag: "4.3" },
+  { event: "한라산 통행금지 해제", date: "1954.9.21", tag: "4.3" },
+ { event: "발췌 개헌", date: "1952" },
+  { event: "사사오입 개헌", date: "1954" },
+  { event: "제3대 대통령 선거", date: "1956" },
+  { event: "진보당 사건", date: "1958.1" },
+  { event: "국가 보안법 개정", date: "1958.12" },
+
+  { event: "제4대 대통령 선거", date: "1960" },
+  { event: "2.28 민주 운동", date: "1960.2.28" },
+  { event: "3.15 부정 선거 · 3.15 의거", date: "1960.3.15" },
+  { event: "김주열 실종 발견", date: "1960.4.11" },
+  { event: "4.19 혁명", date: "1960.4.19" },
+  { event: "4.25 시국 선언", date: "1960.4.25" },
+  { event: "이승만 대통령 하야", date: "1960.4.26" },
+  { event: "장면 내각 출범", date: "1960.8.19" },
+
+  { event: "5.16 군사정변", date: "1961.5.16" },
+  { event: "민주공화당 박정희 당선", date: "1963" },
+  { event: "6.3 시위", date: "1964.6.3" },
+  { event: "한·일 협정", date: "1965" },
+  { event: "박정희 2차 당선", date: "1967" },
+  { event: "북한 청와대 도발", date: "1968" },
+  { event: "3선 개헌", date: "1969" },
+  { event: "닉슨 독트린 발표", date: "1969" },
+
+  { event: "7.4 남북 공동 성명", date: "1972.7.4" },
+  { event: "10월 유신", date: "1972.10" },
+  { event: "2차 인혁당 사건", date: "1975" },
+  { event: "3.1 민주 구국 선언", date: "1976.3.1" },
+  { event: "YH 무역 노동자 신민당 시위", date: "1979" },
+  { event: "부마 민주 항쟁", date: "1979.10.16" },
+  { event: "10.26 사태", date: "1979.10.26" },
+  { event: "12.12 군사 반란", date: "1979.12.12" },
+  { event: "서울의 봄 막", date: "1980.5.17" },
+  { event: "광주 전남대학교 학생 시위", date: "1980.5.18" },
+  { event: "5.18 민주화 운동 끝", date: "1980.5.27" },
+
+  { event: "전두환 당선", date: "1980.8" },
+  { event: "전두환 재선", date: "1981" },
+  { event: "신한민주당 제1야당", date: "1985" },
+
+  { event: "박종철 고문치사 사건", date: "1987.1.14" },
+  { event: "민주 헌법 쟁취 국민운동 본부 발대식", date: "1987.5.27" },
+  { event: "이한열 빈사 상태", date: "1987.6.9" },
+  { event: "6.10 국민대회", date: "1987.6.10" },
+  { event: "6.29 선언", date: "1987.6.29" },
+  { event: "6월 민주 항쟁", date: "1987.6" },
+  { event: "제헌헌법", date: "1948" },
+  { event: "제1차 개헌 (발췌 개헌, 직선제)", date: "1952" },
+  { event: "제2차 개헌 (사사오입 개헌)", date: "1954" },
+  { event: "제3차 개헌 (양원제, 내각 책임제)", date: "1960" },
+  { event: "제4차 개헌", date: "1960" },
+  { event: "제5차 개헌 (대통령 중심제, 단원제, 중임제)", date: "1962" },
+  { event: "제6차 개헌 (3선 개헌)", date: "1969" },
+  { event: "제7차 개헌 (유신 헌법, 임기 6년, 중임제 제한 삭제)", date: "1972" },
+  { event: "제8차 개헌 (간선제, 임기 7년, 단임제)", date: "1980" },
+  { event: "제9차 개헌 (직선제, 임기 5년, 단임)", date: "1987" }
+
+    ];
+
+    const total = cards.length;
+
+    const startScreen = document.getElementById("startScreen");
+    const quizScreen = document.getElementById("quizScreen");
+    const startButton = document.getElementById("startButton");
+    const checkButton = document.getElementById("checkButton");
+    const backButton = document.getElementById("backButton");
+    const counterEl = document.getElementById("counter");
+    const eventTextEl = document.getElementById("eventText");
+    const tagTextEl = document.getElementById("tagText");
+    const answerTextEl = document.getElementById("answerText");
+
+    let order = [], currentIndex = 0, showingAnswer = false;
+
+    const shuffle = arr => {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    };
+
+    function initQuiz() {
+      order = shuffle([...Array(total).keys()]);
+      currentIndex = 0;
+      loadCard();
+    }
+
+    function loadCard() {
+      const idx = order[currentIndex];
+      const card = cards[idx];
+
+      counterEl.textContent = `${currentIndex + 1}/${total}`;
+      eventTextEl.textContent = card.event;
+
+      if (card.tag === "4.3") tagTextEl.textContent = "제주 4.3사건";
+      else if (card.tag === "6.25") tagTextEl.textContent = "6.25 전쟁";
+      else tagTextEl.textContent = "";
+
+      answerTextEl.textContent = card.date;
+      answerTextEl.style.visibility = "hidden";
+      checkButton.textContent = "정답 체크";
+      showingAnswer = false;
+
+      // 첫 문제에서는 뒤로가기 비활성화
+      if (currentIndex === 0) {
+        backButton.disabled = true;
+        backButton.style.opacity = 0.5;
+      } else {
+        backButton.disabled = false;
+        backButton.style.opacity = 1;
+      }
+    }
+
+    startButton.addEventListener("click", () => {
+      startScreen.style.display = "none";
+      quizScreen.style.display = "flex";
+      initQuiz();
+    });
+
+    checkButton.addEventListener("click", () => {
+      if (!showingAnswer) {
+        answerTextEl.style.visibility = "visible";
+        checkButton.textContent = "다음";
+        showingAnswer = true;
+      } else {
+        currentIndex++;
+        if (currentIndex >= total) initQuiz();
+        else loadCard();
+      }
+    });
+
+    backButton.addEventListener("click", () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        loadCard();
+      }
+    });
+  </script>
+</body>
+</html>
